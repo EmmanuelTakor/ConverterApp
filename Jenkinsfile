@@ -11,6 +11,7 @@ pipeline {
 
         stage("Checkout") {
             steps {
+                echo "Clonning github repository..."
                 git branch: 'master', url: 'https://github.com/EmmanuelTakor/ConverterApp.git'
             }
         }
@@ -23,6 +24,7 @@ pipeline {
 
         stage("Build Docker Image") {
             steps {
+                echo "Building Docker image..."
                 script {
                     sh "docker build -t $DOCKER_IMAGE ."
                 }
@@ -31,6 +33,7 @@ pipeline {
 
         stage("Push image to Docker Hub") {
             steps {
+                echo "Pushing Docker image to Docker Hub..."
                 script {
                     withCredentials([usernamePassword(
                         credentialsId: 'credential-id', 
@@ -50,6 +53,7 @@ pipeline {
 
         stage("Deploy") {
             steps {
+                echo "Deploying Docker container..."
                 script {
                     sh """
                     echo 'Deploying container...'
@@ -61,12 +65,14 @@ pipeline {
             }
         }
     }
-}
+
 
     post {
         always {
             echo "Cleaning up..."
-            sh "docker system prune -f"
+            script {
+                sh "docker system prune -f"
+            }
         }
         success {
             echo "Pipeline completed successfully!"
@@ -75,3 +81,4 @@ pipeline {
             echo "Pipeline failed!"
         }
     }
+}
